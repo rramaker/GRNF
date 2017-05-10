@@ -1,0 +1,12 @@
+Package: GRNF
+Type: Package
+Title: Gene Regulatory Network Finder
+Version: 0.1
+Date: 2017-05-09
+Author: Ryne Ramaker <ryneramaker@gmail.com>
+Maintainer: Ryne Ramaker <ryneramaker@gmail.com>
+Description: Finds genes and pathways near ChIP-seq binding sites
+License: MIT
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Depends: parallel, GenomicRanges
