@@ -34,7 +34,14 @@ The second function *FindPathwayEnrichment* will assess enrichment for proximal 
 
 ###Installation
 
-There are multiple ways to install this package. The first involves downloading the binary source file from my github page (https://github.com/rramaker/GRNF) and installing the package manually:
+First, ensure you have the pacakge 'GenomicRanges' installed:
+
+```{r, eval=FASLE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("GenomicRanges")
+```
+
+Next, there are multiple ways to install this package. The first involves downloading the binary source file from my github page (https://github.com/rramaker/GRNF) and installing the package manually:
 
 ```{r, eval=FALSE}
 install.packages("/PathToDownloadedFile/GRNF_0.1.0.tgz")
