@@ -4,10 +4,13 @@
 \alias{FindPathwayEnrichment}
 \title{Find Reactome pathways enriched from proximal binding}
 \usage{
-FindPathwayEnrichment(distanceFrame, minPathwayGenes = 5, numCores = 4)
+FindPathwayEnrichment(distanceFrame, geneSet = NULL, minPathwayGenes = 5,
+  numCores = 4)
 }
 \arguments{
 \item{distanceFrame}{A dataframe resulting from the output of the GeneToPeakDist function. Should have two columns with the first having ENSEMBL gene IDs and the second the distance to the nearest ChIP peak.}
+
+\item{geneSet}{A character vector of ENSEMBL gene IDs to perform enrichment for proximal binding analysis on. If NULL, pathway analysis on all reactome pathways will be used for analysis. Defaults to NULL.}
 
 \item{minPathwayGenes}{A numeric indicating the minimum number of genes in a pathway required for inclusion in pathway analysis. Defaults to 5.}
 

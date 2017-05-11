@@ -1,5 +1,5 @@
 ---
-title: "GRNF"
+title: "Gene Regulatory Network Finder (GRNF)"
 author: "Ryne Ramaker"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -13,23 +13,23 @@ vignette: >
 
 The primary function of this package is to provide tools for assessing which genes a DNA associated protien (DAP) likely regulates based on its genome occupancy. The primary function *GeneToPeakDist* computes the distance from gene transcription start sites (TSS) to the nearest DAP binding site. This function can also calculate weighted distances based on chromatin structure information such as topologically associated domains or promoter interactions. A weighted gene proximity metric is computed for each gene as follows:
 
-For each DAP binding site location (peak end nearest to a gene's TSS) on a gene's chromosome, $d$:
+If a DAP binding site location (peak end closest to a gene's TSS) can be represented as $d_{i}$, $\forall i \in [1,2,3...n]$ where $n$ is the number of DAP binding sites on a gene's chromosome, a binding proximity metric for each gene, $q$, can be computed as:
 
 <br><br>
 <center>
-$G = argmin(\dfrac{|T-d| \times E} {1+K})$
+$G_{q} = argmin(\dfrac{|T-d_{i}| \times E} {1+K})$
 </center>
 <br><br>
-and
+where
 <br><br>
 <center>
 $K=L \times F$
 </center>
 <br><br>
 
-Where $G$ is the weighted gene proximity metric and $T$ is the gene's transcription start site. $E$ is a TAD penalty which is equal to one if $d$ falls within a gene's TAD and a constant greater than one if $d$ falls outside a gene's TAD.  $K$ is a promoter interaction bonus which consists of the product of $L$, a non-zero constant if $d$ falls within a genomic region that has been shown to interact with gene's promoter or zero if $d$ does not fall in a promoter interacting region, and $F$, the relative interaction frequency for the promoter interacting region. This is illustrated for an imaginary gene below:
+Where $G_{q}$ is the weighted gene proximity metric and $T$ is the gene's transcription start site. $E$ is a TAD penalty which is equal to one if $d$ falls within a gene's TAD and a constant greater than one if $d$ falls outside a gene's TAD.  $K$ is a promoter interaction bonus which consists of the product of $L$, a non-zero constant if $d$ falls within a genomic region that has been shown to interact with gene's promoter or zero if $d$ does not fall in a promoter interacting region, and $F$, the relative interaction frequency for the promoter interacting region. 
 
-The second function *FindPathwayEnrichment* will assess enrichment for proximal binding to Reactome pathway gene sets as illustrated below:
+The second function *FindPathwayEnrichment* will assess enrichment for proximal binding to Reactome pathway gene sets or a user inputed gene set.
 
 
 ###Installation
@@ -159,6 +159,12 @@ This function returns a vector of P-values resulting from the pathway analysis.
 
 ```{r}
 head(PathwayPs)
+```
+
+The user can also input a gene set of interest under the *geneSet* flag for enrichment analysis as shown below:
+
+```{r}
+PathwayPs<-FindPathwayEnrichment(distanceFrame = GeneDists, geneSet= c("ENSG00000156006","ENSG00000196839","ENSG00000170558","ENSG00000133997","ENSG00000254415"))
 ```
 
 ###Improving performance with parallelization
