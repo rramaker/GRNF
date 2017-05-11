@@ -151,7 +151,7 @@ GeneToPeakDist<-function(ChIP, GTF, Genes=NULL, TAD=NULL, TAD_Penalty=100, PCHC=
     PCHC_bed <- GenomicRanges::GRanges(PCHC[,1], IRanges::IRanges(PCHC[,2], PCHC[,3]), strand=rep("+",nrow(PCHC)), PCHC[,4], id=PCHC[,5])
     ChIP_bed <- GenomicRanges::GRanges(ChIP[,1], IRanges::IRanges(ChIP[,2], ChIP[,3]), strand=rep("+",nrow(ChIP)), id=row.names(ChIP))
     bedIntersect <- GenomicRanges::findOverlaps(PCHC_bed,ChIP_bed)
-    overlapFrame<-cbind(ChIP[bedIntersect@subjectHits,1:3],ExtendFrame[bedIntersect@queryHits,])
+    overlapFrame<-cbind(ChIP[bedIntersect@subjectHits,1:3],PCHC[bedIntersect@queryHits,])
     #Compute loop bonus distance
     overlapFrame[,8]<-as.character(overlapFrame[,8])
     overlapFrame<-overlapFrame[which(overlapFrame[,8]%in%allGeneFrame[,1]),]

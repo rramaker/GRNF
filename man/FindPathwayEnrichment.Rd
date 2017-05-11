@@ -9,7 +9,7 @@ FindPathwayEnrichment(distanceFrame, minPathwayGenes = 5, numCores = 4)
 \arguments{
 \item{distanceFrame}{A dataframe resulting from the output of the GeneToPeakDist function. Should have two columns with the first having ENSEMBL gene IDs and the second the distance to the nearest ChIP peak.}
 
-\item{minPathwayGenes}{A numeric indicating the minimum number of genes in a pathway required for inclusion in pathway analysis.}
+\item{minPathwayGenes}{A numeric indicating the minimum number of genes in a pathway required for inclusion in pathway analysis. Defaults to 5.}
 
 \item{numCores}{A numeric indicating the number of cores the function can use via R's parallel package. Defaults to 4.}
 }

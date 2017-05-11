@@ -1,6 +1,6 @@
 #'Find Reactome pathways enriched from proximal binding
 #' @param distanceFrame A dataframe resulting from the output of the GeneToPeakDist function. Should have two columns with the first having ENSEMBL gene IDs and the second the distance to the nearest ChIP peak.
-#' @param minPathwayGenes A numeric indicating the minimum number of genes in a pathway required for inclusion in pathway analysis.
+#' @param minPathwayGenes A numeric indicating the minimum number of genes in a pathway required for inclusion in pathway analysis. Defaults to 5.
 #' @param numCores A numeric indicating the number of cores the function can use via R's parallel package. Defaults to 4.
 #' @export
 #' @import parallel

@@ -1,5 +1,5 @@
 ---
-title: "GRNF Guide"
+title: "GRNF"
 author: "Ryne Ramaker"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -9,16 +9,28 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
----
-title: "GRNF_Vignette"
-author: "Ryne Ramaker"
-date: "May 9, 2017"
-output: html_document
----
+###Overview
 
-###Introduction
+The primary function of this package is to provide tools for assessing which genes a DNA associated protien (DAP) likely regulates based on its genome occupancy. The primary function *GeneToPeakDist* computes the distance from gene transcription start sites (TSS) to the nearest DAP binding site. This function can also calculate weighted distances based on chromatin structure information such as topologically associated domains or promoter interactions. A weighted gene proximity metric is computed for each gene as follows:
 
-The primary function of this package is to provide tools for assessing which genes a DNA associated protien (DAP) likely regulates based on its genome occupancy. The primary function *GeneToPeakDist* computes the distance from gene transcription start sites (TSS) to the nearest DAP binding site. This function can also calculate weighted distances based on chromatin structure information such as topologically associated domains or promoter interactions. The second function *FindPathwayEnrichment* will assess enrichment for proximal binding to Reactome pathway gene sets.
+For each DAP binding site location (peak end nearest to a gene's TSS) on a gene's chromosome, $d$:
+
+<br><br>
+<center>
+$G = argmin(\dfrac{|T-d| \times E} {1+K})$
+</center>
+<br><br>
+and
+<br><br>
+<center>
+$K=L \times F$
+</center>
+<br><br>
+
+Where $G$ is the weighted gene proximity metric and $T$ is the gene's transcription start site. $E$ is a TAD penalty which is equal to one if $d$ falls within a gene's TAD and a constant greater than one if $d$ falls outside a gene's TAD.  $K$ is a promoter interaction bonus which consists of the product of $L$, a non-zero constant if $d$ falls within a genomic region that has been shown to interact with gene's promoter or zero if $d$ does not fall in a promoter interacting region, and $F$, the relative interaction frequency for the promoter interacting region. This is illustrated for an imaginary gene below:
+
+The second function *FindPathwayEnrichment* will assess enrichment for proximal binding to Reactome pathway gene sets as illustrated below:
+
 
 ###Installation
 
@@ -45,7 +57,11 @@ install.packages("GRNF")
 
 Once installed the functions from GRNF can be made available in your current working environment with the library() command:
 
-```{r}
+```{r, echo=FALSE}
+suppressWarnings(suppressMessages(library(GRNF)))
+```
+
+```{r,eval=FALSE}
 library(GRNF)
 ```
 
@@ -89,5 +105,61 @@ head(GM12878_PCHC)
 
 ###Finding ChIP-seq peak to gene TSS distances with GeneToPeakDist
 
+The simplest use of this package is computed the genomic distance between TSS and nearest binding site for a given DNA associated protein and a set of genes. Binding sites should be provided under the *ChIP* flag and gene coordinates should be provided under the *GTF* flag. Specific genes can be specified with the *Genes* flag. This can be performed with example data provided with the package as shown below:
 
-###Performing pathway enrichment analysis for proximal ChIP-seq peaks
+```{r}
+data("GM12878_BATF_ChIP")
+data("Homo_sapiens.GRCh37.82.chr.gtf")
+GeneDists<- GeneToPeakDist(ChIP = GM12878_BATF_ChIP, GTF= Homo_sapiens.GRCh37.82.chr.gtf, Genes=c("ENSG00000186092", "ENSG00000237683", "ENSG00000235249","ENSG00000185097"))
+```
+
+The output of this function is a two column dataframe containing the gene ID in the first column and the distance to the nearest binding site in the second column:
+
+```{r}
+head(GeneDists)
+```
+
+Weighted distance metrics can also be computed by penalizing regions of the genome for falling outside of gene's TAD. TAD information should be provided with the *TAD* flag and the magnitude of the penalty for falling outside a gene's TAD is indicated with the *TAD_Penalty* flag. We can expand our previous example as shown below:
+
+```{r}
+data("GM12878_BATF_ChIP")
+data("Homo_sapiens.GRCh37.82.chr.gtf")
+data("GM12878_TAD")
+GeneDists<- GeneToPeakDist(ChIP = GM12878_BATF_ChIP, GTF= Homo_sapiens.GRCh37.82.chr.gtf, TAD = GM12878_TAD, TAD_Penalty = 100)
+```
+
+
+An additional distance weighting that can be perfomed is a bonus for genomic regions known to interact frequently with a gene's promoter. This interaction information should be provided with the *PCHC* flag and the magnitude of the bonus falling into a promoter interacting region is indicated with the *PCHC_Bonus* flag. We can expand our previous example as shown below:
+
+```{r}
+data("GM12878_BATF_ChIP")
+data("Homo_sapiens.GRCh37.82.chr.gtf")
+data("GM12878_TAD")
+data("GM12878_PCHC")
+GeneDists<- GeneToPeakDist(ChIP = GM12878_BATF_ChIP, GTF= Homo_sapiens.GRCh37.82.chr.gtf, TAD = GM12878_TAD, TAD_Penalty = 100, PCHC = GM12878_PCHC, PCHC_Bonus = 100)
+```
+
+
+###Performing pathway analysis for proximal binding with FindPathwayEnrichment
+
+The second function allows user's to perform pathway enrichment analysis using Reactome (http://www.reactome.org) pathways. This implements a simple one-sided Wilcox test comparing the distances from TSS to nearest binding site of genes within a given pathway to all other genes not found in a pathway with the alternate hypothesis that binding sites occur closer to pathway genes than non-pathway genes. The two column dataframe resulting from the *GeneToPeakDist* function is provided to the *distanceFrame* flag and the minimum number of genes required for inclusion of a pathway is provided under the *minPathwayGenes* flag. This analysis can be performed as shown below:
+
+```{r}
+PathwayPs<-FindPathwayEnrichment(distanceFrame = GeneDists, minPathwayGenes = 5)
+```
+
+This function returns a vector of P-values resulting from the pathway analysis.
+
+```{r}
+head(PathwayPs)
+```
+
+###Improving performance with parallelization
+
+Both functions make use of parallelization with R's parallel package. The number of cores used by the function can be changed with the *numCores* flag in both functions. We have found most computers can readily handle 4 cores (the default), but this can be increased on systems with higher capacity. The number of cores available on a computer can be determined as shown below:
+
+```{r}
+library(parallel)
+detectCores()
+```
+
